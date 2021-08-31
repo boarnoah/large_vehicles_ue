@@ -1,0 +1,13 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{5EB67CE0-4A10-6D7E-7D6C-9B9E03F5281B}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "LV",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
