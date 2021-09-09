@@ -1,5 +1,6 @@
 #include "LVCharacter.h"
 
+#include "LVInteractive.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -61,6 +62,8 @@ void ALVCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 	PlayerInputComponent->BindAction("Fly", IE_Pressed, this, &ALVCharacter::ToggleFlying);
 	PlayerInputComponent->BindAxis("FlyUp", this, &ALVCharacter::FlyUp);
+
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ALVCharacter::InteractStart);
 }
 
 void ALVCharacter::MoveForward(float Value)
@@ -103,4 +106,46 @@ void ALVCharacter::FlyUp(float Val)
 	{
 		AddMovementInput(FVector::UpVector, Val);
 	}
+}
+
+void ALVCharacter::InteractStart()
+{
+	ServerInteractStart();
+}
+
+void ALVCharacter::ServerInteractStart_Implementation()
+{
+	FHitResult HitResult;
+	const bool bHit = DoInteractionTrace(HitResult);
+
+	if (bHit)
+	{
+		if (HitResult.GetComponent()->GetClass()->ImplementsInterface(ULVInteractive::StaticClass()))
+		{
+			ILVInteractive::Execute_OnInteractStart(HitResult.GetComponent(), this);
+		} else if (HitResult.GetActor()->GetClass()->ImplementsInterface(ULVInteractive::StaticClass()))
+		{
+			ILVInteractive::Execute_OnInteractStart(HitResult.GetActor(), this);
+		}
+	}
+}
+
+bool ALVCharacter::DoInteractionTrace(FHitResult& hitResult)
+{
+	// From DoInteractionTrace in EstCore
+	FVector CameraLocation;
+	FRotator CameraRotation;
+
+	Controller->GetPlayerViewPoint(CameraLocation, CameraRotation);
+	const FCollisionQueryParams TraceParams(FName(TEXT("PlayerInteractTrace")), true, this);
+
+	const FVector DistanceMax = CameraLocation + CameraRotation.Vector() * InteractionDistance;
+	GetWorld()->LineTraceSingleByChannel(hitResult, CameraLocation, DistanceMax, ECC_Visibility, TraceParams);
+
+	if (hitResult.GetComponent() && hitResult.IsValidBlockingHit())
+	{
+		return true;
+	}
+
+	return false;
 }

@@ -17,6 +17,9 @@ class ALVCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Mesh, meta = (AllowPrivateAccess = "true"))
 	class USkeletalMeshComponent* Mesh3P;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Gameplay, meta = (AllowPrivateAccess = "true"))
+	float InteractionDistance = 128.0f;
+
 public:
 	ALVCharacter();
 
@@ -42,5 +45,10 @@ protected:
 	void ToggleFlying();
 	UFUNCTION(Server, Reliable)
 	void ServerToggleFlying();
-	virtual void FlyUp(float Val);
+	void FlyUp(float Val);
+	void InteractStart();
+	UFUNCTION(Server, Reliable)
+	void ServerInteractStart();
+
+	bool DoInteractionTrace(FHitResult& hitResult);
 };
