@@ -1,14 +1,9 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "LVGameModeBase.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class LV_API ALVGameModeBase : public AGameModeBase
 {
